@@ -44,6 +44,30 @@ Describe 'ConvertFrom-WingetExitCode' {
   }
 }
 
+Describe 'Format-WingetFailures' {
+  It 'summarises a failed package with its hex exit code and winget detail' {
+    $msg = Format-WingetFailures -Failures @(
+      [pscustomobject]@{ Id = 'Mozilla.Firefox'; Code = 1; Detail = 'Install technology unsupported' }
+    )
+    $msg | Should -BeLike '*Mozilla.Firefox*'
+    $msg | Should -BeLike '*0x00000001*'
+    $msg | Should -BeLike '*Install technology unsupported*'
+  }
+  It 'normalises a signed-int exit code to its unsigned hex form' {
+    $signed = [long]0x8A150011 - 0x100000000
+    Format-WingetFailures -Failures @([pscustomobject]@{ Id = 'X'; Code = $signed; Detail = '' }) |
+      Should -BeLike '*0x8A150011*'
+  }
+  It 'joins multiple failed packages' {
+    $msg = Format-WingetFailures -Failures @(
+      [pscustomobject]@{ Id = 'A.A'; Code = 1; Detail = '' }
+      [pscustomobject]@{ Id = 'B.B'; Code = 1; Detail = '' }
+    )
+    $msg | Should -BeLike '*A.A*'
+    $msg | Should -BeLike '*B.B*'
+  }
+}
+
 Describe 'ConvertFrom-WingetUpgradeTable' {
   BeforeAll {
     $starts = @(0, 21, 47, 61, 74)

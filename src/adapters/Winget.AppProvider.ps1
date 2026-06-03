@@ -53,6 +53,25 @@ function ConvertFrom-WingetExitCode
   }
 }
 
+function Format-WingetFailures
+{
+  # PURE: summarise failed winget upgrades into one error string -- per package,
+  # its id, the normalised unsigned hex exit code, and (when present) winget's
+  # own last output line. This is what populates the wide event's `error`;
+  # without it a non-zero winget exit was reported as a silent Failed.
+  [OutputType([string])]
+  [CmdletBinding()]
+  param([Parameter(Mandatory)][object[]] $Failures)
+  $parts = [System.Collections.Generic.List[string]]::new()
+  foreach ($f in $Failures)
+  {
+    $hex    = '0x{0:X8}' -f ([long]$f.Code -band 0xFFFFFFFFL)
+    $detail = $f.Detail ? " -- $($f.Detail)" : ''
+    $parts.Add("$($f.Id): winget exited $hex$detail")
+  }
+  $parts -join '; '
+}
+
 function Get-WingetColumnStart
 {
   # PURE: column start indices = positions in the header where a non-space
@@ -244,9 +263,10 @@ function New-WingetAppProvider
         -ErrorMessage 'winget (App Installer) was not found on this system.' -DurationMs $sw.ElapsedMilliseconds
     }
 
-    $applied = [System.Collections.Generic.List[object]]::new()
-    $failed  = [System.Collections.Generic.List[object]]::new()
-    $reboot  = $false
+    $applied  = [System.Collections.Generic.List[object]]::new()
+    $failed   = [System.Collections.Generic.List[object]]::new()
+    $failures = [System.Collections.Generic.List[object]]::new()
+    $reboot   = $false
 
     foreach ($item in $plan.Items)
     {
@@ -258,8 +278,11 @@ function New-WingetAppProvider
         $argv += @('--scope', 'machine')
       }
 
-      & $winget @argv *> $null
-      $res = ConvertFrom-WingetExitCode -Code ([long]$LASTEXITCODE)
+      # Capture winget's output (2>&1) instead of discarding it (*> $null), so a
+      # non-zero exit is reported with its code + message, never silently.
+      $out  = & $winget @argv 2>&1
+      $code = [long]$LASTEXITCODE
+      $res  = ConvertFrom-WingetExitCode -Code $code
       switch ($res.Status)
       {
         'Applied'
@@ -272,6 +295,9 @@ function New-WingetAppProvider
         'Failed'
         {
           $failed.Add($item)
+          $lines  = @($out | ForEach-Object { ([string]$_).Trim() } | Where-Object { $_ })
+          $detail = $lines ? $lines[-1] : ''
+          $failures.Add([pscustomobject]@{ Id = $item.Id; Code = $code; Detail = $detail })
         }
         'NoOp'
         {
@@ -291,9 +317,19 @@ function New-WingetAppProvider
       'NothingToDo'
     }
 
-    New-UpdateResult -Target $target -Outcome $outcome `
-      -ItemsApplied $applied.ToArray() -ItemsFailed $failed.ToArray() `
-      -RebootRequired $reboot -DurationMs $sw.ElapsedMilliseconds
+    $resultArgs = @{
+      Target         = $target
+      Outcome        = $outcome
+      ItemsApplied   = $applied.ToArray()
+      ItemsFailed    = $failed.ToArray()
+      RebootRequired = $reboot
+      DurationMs     = $sw.ElapsedMilliseconds
+    }
+    if ($failures.Count -gt 0)
+    {
+      $resultArgs.ErrorMessage = Format-WingetFailures -Failures $failures.ToArray()
+    }
+    New-UpdateResult @resultArgs
   }.GetNewClosure()
 
   New-UpdateProviderPort -Target $target -GetPlan $getPlan -Apply $apply
