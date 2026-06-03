@@ -1,0 +1,110 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: windows-maintenance
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  lint-json:
+    name: Lint JSON
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Biome
+        uses: biomejs/setup-biome@4c91541eaada48f67d7dbd7833600ce162b68f51 # v2.7.1
+      - name: Lint and format check with Biome
+        run: |
+          shopt -s globstar nullglob dotglob
+          files=(**/*.json **/*.jsonc)
+          if [[ ${#files[@]} -gt 0 ]]; then
+            biome ci "${files[@]}"
+          fi
+  lint-markdown:
+    name: Lint Markdown
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Lint with markdownlint-cli2
+        uses: DavidAnson/markdownlint-cli2-action@ded1f9488f68a970bc66ea5619e13e9b52e601cd # v23.2.0
+        with:
+          globs: |
+            **/.github/PULL_REQUEST_TEMPLATE
+            **/*.md
+      - name: Set up bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - name: Cache global bun packages
+        uses: actions/cache@v5
+        with:
+          key: bun-global-markdown-${{ runner.os }}-prettier
+          path: ~/.bun/install/global
+      - name: Install Prettier
+        run: bun add --global prettier
+      - name: Format check with Prettier
+        run: |
+          prettier \
+            --check \
+            --parser markdown \
+            --prose-wrap always \
+            --print-width 80 \
+            "**/*.md" "**/.github/PULL_REQUEST_TEMPLATE"
+  lint-powershell:
+    name: Lint PowerShell
+    permissions:
+      contents: read
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Lint and format check with PSScriptAnalyzer and Invoke-Formatter
+        shell: pwsh
+        run: ./tools/run-tests.ps1 -SkipTests -Install
+  lint-yaml:
+    name: Lint YAML
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+      - name: Cache Go binaries
+        uses: actions/cache@v5
+        with:
+          key: go-bin-yaml-${{ runner.os }}-yamlfmt
+          path: ~/go/bin
+      - name: Install yamlfmt
+        run: go install github.com/google/yamlfmt/cmd/yamlfmt@latest
+      - name: Format check with yamlfmt
+        run: yamlfmt --lint "**/*.{yml,yaml}"
+  test:
+    name: Test
+    permissions:
+      contents: read
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Run Pester suite
+        shell: pwsh
+        run: ./tools/run-tests.ps1 -SkipLint -Install

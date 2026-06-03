@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: publish-help
+on:
+  push:
+    tags:
+      - v*
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    name: Generate Help Artifacts
+    permissions:
+      contents: read
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Build help CABs and HelpInfo.xml
+        shell: pwsh
+        run: ./tools/build-help.ps1 -Install -OutputPath ./_site
+      - name: Upload
+        uses: actions/upload-artifact@v7
+        with:
+          name: help-site
+          path: ./_site
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: help-site
+          path: ./_site
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+      - name: Upload static files as artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./_site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

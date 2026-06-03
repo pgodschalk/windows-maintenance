@@ -7,13 +7,16 @@
 .EXAMPLE
     pwsh tools/run-tests.ps1 -Install
 .EXAMPLE
-    pwsh tools/run-tests.ps1 -SkipLint   # run the tests only
+    pwsh tools/run-tests.ps1 -SkipLint -Install    # tests only (the CI "test" job)
+.EXAMPLE
+    pwsh tools/run-tests.ps1 -SkipTests -Install   # lint + format check only (the CI "lint" job)
 #>
 [CmdletBinding()]
 param(
   [string] $Path = (Join-Path (Split-Path $PSScriptRoot -Parent) 'tests'),
   [switch] $Install,
-  [switch] $SkipLint
+  [switch] $SkipLint,
+  [switch] $SkipTests
 )
 
 $ErrorActionPreference = 'Stop'
@@ -78,11 +81,14 @@ if (-not $SkipLint)
   }
 }
 
-Install-IfMissing -Name Pester -MinVersion '5.0.0'
-Import-Module Pester -MinimumVersion 5.0.0
+if (-not $SkipTests)
+{
+  Install-IfMissing -Name Pester -MinVersion '5.0.0'
+  Import-Module Pester -MinimumVersion 5.0.0
 
-$config = New-PesterConfiguration
-$config.Run.Path = $Path
-$config.Run.Exit = $true
-$config.Output.Verbosity = 'Detailed'
-Invoke-Pester -Configuration $config
+  $config = New-PesterConfiguration
+  $config.Run.Path = $Path
+  $config.Run.Exit = $true
+  $config.Output.Verbosity = 'Detailed'
+  Invoke-Pester -Configuration $config
+}

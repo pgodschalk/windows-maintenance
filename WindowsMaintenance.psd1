@@ -7,6 +7,11 @@
   Description       = 'Updates Windows and installed apps, runs silent health checks, and lists manual tasks.'
   PowerShellVersion = '7.4'
 
+  # Base URI for Updatable Help (Update-Help): the GitHub Pages site where CI
+  # publishes WindowsMaintenance_<GUID>_HelpInfo.xml and the help CABs (built
+  # by tools/build-help.ps1, deployed by .github/workflows/publish-help.yml).
+  HelpInfoUri       = 'https://pgodschalk.github.io/windows-maintenance/'
+
   # Export everything. This is an APPLICATION module (driven by
   # Invoke-WindowsMaintenance.ps1, never consumed as a library), and the
   # closure-record port pattern REQUIRES it: a provider's GetPlan/Apply
@@ -25,8 +30,9 @@
   PrivateData       = @{
     PSData = @{
       Tags         = @('Windows', 'Updates', 'winget', 'WindowsUpdate', 'Defender', 'Maintenance')
-      ProjectUri   = ''
-      ReleaseNotes = 'WUA, winget, Defender, silent maintenance checks, encrypted backup, and manual tasks.'
+      LicenseUri   = 'https://github.com/pgodschalk/windows-maintenance/blob/main/LICENSE.txt'
+      ProjectUri   = 'https://github.com/pgodschalk/windows-maintenance'
+      ReleaseNotes = '1.0.0: Windows + winget + Defender updates, silent checks, encrypted backup, manual tasks.'
     }
   }
 }

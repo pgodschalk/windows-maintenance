@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: release
+on:
+  push:
+    tags:
+      - v*
+permissions:
+  contents: read
+jobs:
+  release:
+    name: Package and publish
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Verify the tag matches the module version
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:TAG -replace '^v', ''
+          $manifest = Import-PowerShellDataFile ./WindowsMaintenance.psd1
+          if ($manifest.ModuleVersion -ne $version) {
+            throw "Tag '$($env:TAG)' does not match ModuleVersion '$($manifest.ModuleVersion)'."
+          }
+      - name: Stage, sign, and package the module
+        shell: pwsh
+        env:
+          SIGNING_CERT_PFX_BASE64: ${{ secrets.SIGNING_CERT_PFX_BASE64 }}
+          SIGNING_CERT_PASSWORD: ${{ secrets.SIGNING_CERT_PASSWORD }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:TAG -replace '^v', ''
+          $stage = Join-Path $env:RUNNER_TEMP 'WindowsMaintenance'
+          $null = New-Item -ItemType Directory -Path $stage -Force
+          $files = @(
+            'WindowsMaintenance.psd1', 'WindowsMaintenance.psm1',
+            'Invoke-WindowsMaintenance.ps1', 'README.md', 'LICENSE.txt',
+            'manual-tasks.schema.json', 'manual-tasks.example.json',
+            'backup-config.schema.json', 'backup-config.example.json'
+          )
+          Copy-Item -Path $files -Destination $stage
+          Copy-Item -Path ./src -Destination $stage -Recurse
+          Copy-Item -Path ./en-US -Destination $stage -Recurse
+
+          $cer = ''
+
+          if ($env:SIGNING_CERT_PFX_BASE64) {
+            $pfx = Join-Path $env:RUNNER_TEMP 'signing.pfx'
+            [System.IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:SIGNING_CERT_PFX_BASE64))
+            $password = ConvertTo-SecureString $env:SIGNING_CERT_PASSWORD -AsPlainText -Force
+            $cert = Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password
+            $scripts = Get-ChildItem -Path $stage -Recurse -Include '*.ps1', '*.psm1', '*.psd1'
+
+            foreach ($script in $scripts) {
+              $signature = Set-AuthenticodeSignature -FilePath $script.FullName -Certificate $cert -HashAlgorithm SHA256 -TimestampServer 'http://timestamp.digicert.com'
+
+              if ($signature.SignerCertificate.Thumbprint -ne $cert.Thumbprint) {
+                throw "Authenticode signing failed for $($script.Name) (status: $($signature.Status))."
+              }
+            }
+
+            $cer = "WindowsMaintenance-$version.cer"
+            $null = Export-Certificate -Cert $cert -FilePath $cer -Type CERT
+            Remove-Item -Path "Cert:\CurrentUser\My\$($cert.Thumbprint)" -Force
+            Remove-Item -Path $pfx -Force
+            Write-Output "Signed $($scripts.Count) script(s); exported public certificate to $cer."
+          } else {
+            Write-Warning 'SIGNING_CERT_PFX_BASE64 not set; scripts are unsigned (Sigstore attestation still applies).'
+          }
+
+          $zip = "WindowsMaintenance-$version.zip"
+          Compress-Archive -Path $stage -DestinationPath $zip -Force
+          "$((Get-FileHash $zip -Algorithm SHA256).Hash)  $zip" | Set-Content -Path "$zip.sha256"
+          "ZIP=$zip" | Add-Content -Path $env:GITHUB_ENV
+          "CERT=$cer" | Add-Content -Path $env:GITHUB_ENV
+      - name: Attest
+        uses: actions/attest@v4
+        with:
+          subject-path: ${{ env.ZIP }}
+      - name: Create the GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" "$ZIP" "$ZIP.sha256" $CERT --title "$TAG" --generate-notes
