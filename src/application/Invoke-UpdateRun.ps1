@@ -138,6 +138,14 @@ function Invoke-UpdateRun
             $what = "$($p.Target.DisplayName) ($(@($plan.Items).Count) item(s))"
             if ($PSCmdlet.ShouldProcess($what, 'Apply updates'))
             {
+              # Long-running alert-only checks (SFC/DISM, full scan) are silent
+              # but slow; announce the start so the run doesn't look hung.
+              # Reached only on Proceed -- skipped/NothingToDo/-WhatIf stay
+              # quiet.
+              if ($p.Target.Capabilities.LongRunning)
+              {
+                & $Presenter.ShowProgress "Starting $($p.Target.DisplayName)..."
+              }
               $result = & $p.Apply $ctx $plan
             } else
             {

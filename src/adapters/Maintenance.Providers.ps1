@@ -146,8 +146,15 @@ function Test-DefenderClean
 function New-MaintenanceTarget
 {
   # Helper: an Automated target flagged AlertOnly (silent unless a problem).
-  param([string] $Id, [string] $DisplayName)
-  New-UpdateTarget -Id $Id -DisplayName $DisplayName -Kind 'Automated' -Capabilities @{ AlertOnly = $true }
+  # -LongRunning marks the slow checks (SFC/DISM, full scan) so the use case
+  # can announce when they start -- they would otherwise look hung.
+  param([string] $Id, [string] $DisplayName, [switch] $LongRunning)
+  $caps = @{ AlertOnly = $true }
+  if ($LongRunning)
+  {
+    $caps.LongRunning = $true
+  }
+  New-UpdateTarget -Id $Id -DisplayName $DisplayName -Kind 'Automated' -Capabilities $caps
 }
 
 function New-StorageHealthProvider
@@ -300,7 +307,7 @@ function New-SystemIntegrityProvider
   # (repaired or not).
   [CmdletBinding()]
   param()
-  $target = New-MaintenanceTarget -Id 'system-integrity' -DisplayName 'System integrity (SFC/DISM)'
+  $target = New-MaintenanceTarget -Id 'system-integrity' -DisplayName 'System integrity (SFC/DISM)' -LongRunning
   $getPlan = {
     param($ctx)
     New-UpdatePlan -Items @(New-UpdateItem -Id 'system-integrity' -Name 'System integrity' -To 'scan')
@@ -356,7 +363,7 @@ function New-DefenderFullScanProvider
   # Full Defender scan (slow). Alerts if active threats are found.
   [CmdletBinding()]
   param()
-  $target = New-MaintenanceTarget -Id 'defender-full-scan' -DisplayName 'Defender full scan'
+  $target = New-MaintenanceTarget -Id 'defender-full-scan' -DisplayName 'Defender full scan' -LongRunning -LongRunning
   $getPlan = {
     param($ctx)
     New-UpdatePlan -Items @(New-UpdateItem -Id 'defender-full-scan' -Name 'Defender full scan' -To 'scan')

@@ -275,3 +275,45 @@ Describe 'Invoke-UpdateRun - reboot prompt is interactive-guarded' {
     $report.RebootDecision.ToString() | Should -Be 'NotPromptedNonInteractive'
   }
 }
+
+Describe 'Invoke-UpdateRun - long-running checks announce their start' {
+  BeforeAll {
+    BeforeAll {
+      function New-AlertOnlyProvider
+      {
+        param([string] $Id, [string] $DisplayName, [switch] $LongRunning)
+        $caps = @{ AlertOnly = $true }
+        if ($LongRunning)
+        {
+          $caps.LongRunning = $true
+        }
+        $target = New-UpdateTarget -Id $Id -DisplayName $DisplayName -Kind 'Automated' -Capabilities $caps
+        $plan   = New-UpdatePlan -Items @(New-UpdateItem -Id $Id -Name 'check' -To 'scan')
+        $result = New-UpdateResult -Target $target -Outcome 'Succeeded' -DurationMs 5
+        [pscustomobject]@{
+          Target  = $target
+          GetPlan = { param($ctx) $plan }.GetNewClosure()
+          Apply   = { param($ctx, $plan) $result }.GetNewClosure()
+        }
+      }
+    }
+
+    It 'prints a start line for a long-running check before it runs' {
+      $provider  = New-AlertOnlyProvider -Id 'system-integrity' -DisplayName 'System integrity (SFC/DISM)' -LongRunning
+      $presenter = New-FakePresenter
+      Invoke-Run -Providers @($provider) -Clock (New-FakeClock) `
+        -StateStore (New-FakeStateStore) -EventSink (New-FakeEventSink) `
+        -Presenter $presenter -Environment (New-Elevated) | Out-Null
+
+      ($presenter.State.Progress -join "`n") | Should -Match 'Starting System integrity'
+    }
+    It 'stays silent for an alert-only check that is not long-running' {
+      $provider  = New-AlertOnlyProvider -Id 'free-space' -DisplayName 'Free disk space'
+      $presenter = New-FakePresenter
+      Invoke-Run -Providers @($provider) -Clock (New-FakeClock) `
+        -StateStore (New-FakeStateStore) -EventSink (New-FakeEventSink) `
+        -Presenter $presenter -Environment (New-Elevated) | Out-Null
+
+      ($presenter.State.Progress -join "`n") | Should -Not -Match 'Starting'
+    }
+  }
