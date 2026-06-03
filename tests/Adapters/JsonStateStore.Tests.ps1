@@ -59,4 +59,23 @@ Describe 'JsonStateStore' {
       Remove-Item -LiteralPath $dir -Recurse -ErrorAction SilentlyContinue
     }
   }
+  It 'preserves the timestamp date under a dd/MM locale (regression: month/day swap)' {
+    $path    = New-TempPath
+    $store   = New-JsonStateStore -Path $path
+    $iso     = ([datetimeoffset]::new(2026, 6, 3, 10, 0, 0, [timespan]::FromHours(2))).ToString('o')
+    $culture = [System.Threading.Thread]::CurrentThread.CurrentCulture
+    try
+    {
+      & $store.Save ([pscustomobject]@{ outcome = 'Succeeded'; timestamp = $iso })
+      # Load + parse under a day-month-first locale, exactly as the app does.
+      [System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::new('nl-NL')
+      $when = [datetimeoffset]::Parse([string]((& $store.Load).Record.timestamp))
+      $when.Month | Should -Be 6 -Because '3 June (06-03) must not be read back as 6 March'
+      $when.Day   | Should -Be 3
+    } finally
+    {
+      [System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
+      Remove-Item -LiteralPath $path -ErrorAction SilentlyContinue
+    }
+  }
 }

@@ -19,7 +19,11 @@ function New-JsonStateStore
     }
     try
     {
-      $record = Get-Content -LiteralPath $Path -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+      # -DateKind String: keep the ISO 8601 timestamp as text. Without it,
+      # ConvertFrom-Json coerces it to [DateTime] and the later Parse re-reads a
+      # MM/dd string under a dd/MM locale, swapping month and day.
+      $record = Get-Content -LiteralPath $Path -Raw -ErrorAction Stop |
+        ConvertFrom-Json -DateKind String -ErrorAction Stop
       [pscustomobject]@{ Record = $record; Corrupt = $false }
     } catch
     {
