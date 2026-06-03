@@ -1,4 +1,5 @@
 #requires -Version 7.4
+
 <#
 .SYNOPSIS
     Runs routine Windows maintenance: installs Windows + application updates,
