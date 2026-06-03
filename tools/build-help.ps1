@@ -19,7 +19,8 @@ $repo = Split-Path $PSScriptRoot -Parent
 $docs = Join-Path $repo 'docs' 'help'
 $maml = Join-Path $repo 'en-US'
 if (-not $OutputPath)
-{ $OutputPath = Join-Path $repo 'out' 'help'
+{
+  $OutputPath = Join-Path $repo 'out' 'help'
 }
 
 if (-not (Get-Module -ListAvailable -Name platyPS))
