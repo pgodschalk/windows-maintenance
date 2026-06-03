@@ -363,7 +363,7 @@ function New-DefenderFullScanProvider
   # Full Defender scan (slow). Alerts if active threats are found.
   [CmdletBinding()]
   param()
-  $target = New-MaintenanceTarget -Id 'defender-full-scan' -DisplayName 'Defender full scan' -LongRunning -LongRunning
+  $target = New-MaintenanceTarget -Id 'defender-full-scan' -DisplayName 'Defender full scan' -LongRunning
   $getPlan = {
     param($ctx)
     New-UpdatePlan -Items @(New-UpdateItem -Id 'defender-full-scan' -Name 'Defender full scan' -To 'scan')
