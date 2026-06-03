@@ -171,7 +171,7 @@ Describe 'Resolve-RebootRequirement' {
 Describe 'Get-UpdateDecision (per-target policy, pure)' {
   BeforeAll {
     $env = New-EnvironmentInfo -OsBuild '26100' -OsVersion 'Win11' -PsVersion '7.6.2' `
-      -ScriptVersion '1.0.0' -IsElevated $true -IsInteractive $true -Locale 'en-NL' -Region 'NL'
+      -ScriptVersion '1.0.1' -IsElevated $true -IsInteractive $true -Locale 'en-NL' -Region 'NL'
   }
   It 'says ManualOnly for a manual-advisory target regardless of plan' {
     $t = New-UpdateTarget -Id 'manual:x' -DisplayName 'Some manual task' -Kind 'ManualAdvisory'
@@ -223,7 +223,7 @@ Describe 'Test-ElevationGate (pure precondition)' {
 Describe 'ConvertTo-WideEvent (the canonical event projection)' {
   BeforeAll {
     $env = New-EnvironmentInfo -OsBuild '26100.1742' -OsVersion 'Windows 11 Pro 24H2' `
-      -PsVersion '7.6.2' -ScriptVersion '1.0.0' -IsElevated $true -IsInteractive $true `
+      -PsVersion '7.6.2' -ScriptVersion '1.0.1' -IsElevated $true -IsInteractive $true `
       -Locale 'en-NL' -Region 'NL'
     $results = @(
       New-TestResult -Id 'windows-update' -Display 'Windows Update' -Outcome 'Succeeded' `

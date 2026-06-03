@@ -475,7 +475,7 @@
     <command:examples>
       <command:example>
         <maml:title>-------------------------- Example 1 --------------------------</maml:title>
-        <dev:code>$c = New-WindowsMaintenanceComposition -ScriptVersion '1.0.0'
+        <dev:code>$c = New-WindowsMaintenanceComposition -ScriptVersion '1.0.1'
 $report = Invoke-UpdateRun -Providers $c.Providers -Clock $c.Clock -StateStore $c.StateStore `
   -EventSink $c.EventSink -Presenter $c.Presenter -Environment $c.Environment -HostName $c.HostName
 $report.OverallOutcome</dev:code>
@@ -847,7 +847,7 @@ $report.OverallOutcome</dev:code>
     <command:examples>
       <command:example>
         <maml:title>-------------------------- Example 1 --------------------------</maml:title>
-        <dev:code>$c = New-WindowsMaintenanceComposition -ScriptVersion '1.0.0' -WingetExcludeId 'Foo.Bar'
+        <dev:code>$c = New-WindowsMaintenanceComposition -ScriptVersion '1.0.1' -WingetExcludeId 'Foo.Bar'
 $c.Providers.Count</dev:code>
         <dev:remarks>
           <maml:para>Builds the default composition while pinning the winget package `Foo.Bar` so it is never upgraded.</maml:para>
