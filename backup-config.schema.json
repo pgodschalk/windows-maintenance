@@ -1,0 +1,64 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://raw.githubusercontent.com/pgodschalk/windows-maintenance/blob/main/backup-config.schema.json",
+	"title": "Windows Maintenance backup config",
+	"description": "Encrypted restic backup to S3-compatible storage.",
+	"type": "object",
+	"required": ["repository", "paths", "secrets"],
+	"additionalProperties": false,
+	"properties": {
+		"$schema": { "type": "string" },
+		"repository": {
+			"type": "string",
+			"minLength": 1,
+			"description": "restic repository URL, e.g. \"s3:https://object-storage.kernelpanics.nl/backups\"."
+		},
+		"paths": {
+			"type": "array",
+			"items": { "type": "string", "minLength": 1 },
+			"description": "Paths to back up."
+		},
+		"exclude": {
+			"type": "array",
+			"items": { "type": "string" },
+			"description": "Optional restic --exclude patterns."
+		},
+		"insecureTls": {
+			"type": "boolean",
+			"description": "Skip TLS verification (e.g. a self-signed home MinIO endpoint). Default false."
+		},
+		"retention": {
+			"type": "object",
+			"additionalProperties": false,
+			"description": "Optional `restic forget --prune` retention. Omit entirely to keep all snapshots (no pruning).",
+			"properties": {
+				"keepDaily": { "type": "integer", "minimum": 0 },
+				"keepWeekly": { "type": "integer", "minimum": 0 },
+				"keepMonthly": { "type": "integer", "minimum": 0 }
+			}
+		},
+		"secrets": {
+			"type": "object",
+			"required": ["resticPassword", "awsAccessKeyId", "awsSecretAccessKey"],
+			"additionalProperties": false,
+			"description": "1Password references (op://...), NOT literal secrets.",
+			"properties": {
+				"resticPassword": {
+					"type": "string",
+					"pattern": "^op://",
+					"description": "op:// reference to the restic repository password (the encryption key)."
+				},
+				"awsAccessKeyId": {
+					"type": "string",
+					"pattern": "^op://",
+					"description": "op:// reference to the S3 access key ID."
+				},
+				"awsSecretAccessKey": {
+					"type": "string",
+					"pattern": "^op://",
+					"description": "op:// reference to the S3 secret access key."
+				}
+			}
+		}
+	}
+}

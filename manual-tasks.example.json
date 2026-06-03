@@ -1,0 +1,154 @@
+{
+	"$schema": "./manual-tasks.schema.json",
+	"manualTasks": [
+		{ "name": "1Password", "category": "Updates" },
+		{ "name": "Amazon Games", "category": "Updates" },
+		{
+			"name": "Amazon Prime Gaming",
+			"category": "Free games",
+			"url": "https://luna.amazon.nl/claims/home?g=s"
+		},
+		{
+			"name": "AMD X670E Chipset Drivers",
+			"category": "Updates",
+			"url": "https://www.amd.com/en/support/downloads/drivers.html/chipsets/am5/x670e.html"
+		},
+		{
+			"name": "ASUS ROG Strix RTX 4090 24G BIOS & firmware",
+			"category": "Updates",
+			"url": "https://www.asus.com/us/supportonly/rog-strix-rtx4090-24g-gaming/helpdesk_bios/"
+		},
+		{
+			"name": "AtlasOS",
+			"category": "Updates",
+			"url": "https://github.com/Atlas-OS/Atlas/releases"
+		},
+		{
+			"name": "CoreCycler",
+			"category": "Updates",
+			"url": "https://github.com/sp00n/corecycler/releases"
+		},
+		{ "name": "Crucial Storage Executive", "category": "Updates" },
+		{
+			"name": "DiskSpd",
+			"category": "Updates",
+			"url": "https://github.com/microsoft/diskspd/releases"
+		},
+		{
+			"name": "Dracula Pro (Visual Studio Code)",
+			"category": "Updates",
+			"url": "https://github.com/dracula-pro/dracula-pro/tree/main/themes/visual-studio-code"
+		},
+		{
+			"name": "Dracula PRO theme (Windows Terminal)",
+			"category": "Updates",
+			"url": "https://github.com/dracula-pro/dracula-pro/tree/main/themes/windows-terminal"
+		},
+		{ "name": "EA App", "category": "Updates" },
+		{ "name": "Epic Games", "category": "Free games" },
+		{ "name": "Epic Games Launcher", "category": "Updates" },
+		{
+			"name": "FanControl.LiquidCtl",
+			"category": "Updates",
+			"url": "https://github.com/antoine-bouteiller/FanControl.LiquidCtl/releases"
+		},
+		{
+			"name": "Flawless Widescreen",
+			"category": "Updates"
+		},
+		{ "name": "Flydigi Space Station", "category": "Updates" },
+		{ "name": "GOG GALAXY", "category": "Updates" },
+		{
+			"name": "JetBrains Mono Nerd Font",
+			"category": "Updates",
+			"url": "https://www.nerdfonts.com/releases"
+		},
+		{
+			"name": "Karhu RAM Test",
+			"category": "Updates",
+			"url": "https://www.karhusoftware.com/ramtest/"
+		},
+		{ "name": "Legacy Games", "category": "Updates" },
+		{
+			"name": "Lian-Li Strimer Plus V2 12+4-pin to 12+4-pin 12 8 light guides",
+			"category": "Updates",
+			"url": "https://lian-li.com/l-connect3/l3_update_manually/"
+		},
+		{
+			"name": "Lian-Li Strimer Plus V2 24-pin",
+			"category": "Updates",
+			"url": "https://lian-li.com/l-connect3/l3_update_manually/"
+		},
+		{ "name": "Logitech G HUB", "category": "Updates" },
+		{ "name": "Microsoft Store", "category": "Updates" },
+		{
+			"name": "MSI X670E CARBON WIFI AMD BlueTooth Drivers",
+			"category": "Updates",
+			"url": "https://www.msi.com/Motherboard/MPG-X670E-CARBON-WIFI/support#driver"
+		},
+		{
+			"name": "MSI X670E CARBON WIFI AMI BIOS",
+			"category": "Updates",
+			"url": "https://www.msi.com/Motherboard/MPG-X670E-CARBON-WIFI/support#bios"
+		},
+		{
+			"name": "NVIDIA drivers (from NVCleanstall)",
+			"category": "Updates"
+		},
+		{ "name": "NZXT CAM", "category": "Updates" },
+		{
+			"name": "obs-shaderfilter",
+			"category": "Updates",
+			"url": "https://github.com/exeldro/obs-shaderfilter/releases"
+		},
+		{ "name": "Playnite", "category": "Updates" },
+		{
+			"name": "Razer Naga Pro",
+			"category": "Updates",
+			"url": "https://mysupport.razer.com/app/answers/detail/a_id/4549"
+		},
+		{ "name": "Razer Synapse", "category": "Updates" },
+		{
+			"name": "Realtek RTL8125 controller software - Not Support Power Saving",
+			"category": "Updates",
+			"url": "https://www.realtek.com/Download/List?cate_id=584"
+		},
+		{
+			"name": "Samsung C49G93TSSR driver",
+			"category": "Updates",
+			"url": "https://www.samsung.com/nl/support/model/LC49G93TSSRXEN/#downloads"
+		},
+		{
+			"name": "Samsung C49G93TSSR firmware",
+			"category": "Updates",
+			"url": "https://www.samsung.com/nl/support/model/LC49G93TSSRXEN/#downloads"
+		},
+		{
+			"name": "Steam",
+			"category": "Updates",
+			"url": "steam://open/downloads"
+		},
+		{ "name": "SteelSeries GG", "category": "Updates" },
+		{
+			"name": "StreamElements SE.Live",
+			"category": "Updates"
+		},
+		{
+			"name": "TestMem5",
+			"category": "Updates",
+			"url": "https://github.com/CoolCmd/TestMem5/releases"
+		},
+		{ "name": "Ubisoft Connect", "category": "Updates" },
+		{ "name": "Visual Studio Code", "category": "Updates" },
+		{
+			"name": "y-cruncher",
+			"category": "Updates",
+			"url": "https://www.numberworld.org/y-cruncher/"
+		},
+		{
+			"name": "ZenTimings",
+			"category": "Updates",
+			"url": "https://github.com/irusanov/ZenTimings/releases"
+		}
+	]
+}

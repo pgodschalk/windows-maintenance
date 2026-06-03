@@ -1,0 +1,23 @@
+{
+	// Make sure every PowerShell extension is recognised as the PowerShell
+	// language, so the line-ending rule below covers .psm1/.psd1/etc., not just
+	// .ps1.
+	"file_types": {
+		"PowerShell": [
+			"ps1",
+			"ps1x",
+			"psm1",
+			"psd1",
+			"ps1xml",
+			"psrc",
+			"pssc",
+			"cdxml"
+		]
+	},
+	"languages": {
+		"PowerShell": {
+			// Enforce CRLF on save/format for PowerShell files
+			"line_ending": "enforce_crlf"
+		}
+	}
+}

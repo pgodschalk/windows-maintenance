@@ -1,0 +1,41 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://raw.githubusercontent.com/pgodschalk/windows-maintenance/blob/main/manual-tasks.schema.json",
+	"title": "Windows Maintenance manual tasks",
+	"description": "Things this tool cannot automate and must surface for a human to check/update. They are printed at the end of every run.",
+	"type": "object",
+	"required": ["manualTasks"],
+	"additionalProperties": false,
+	"properties": {
+		"$schema": {
+			"type": "string",
+			"description": "Optional reference to this schema, so editors validate the file as you edit it."
+		},
+		"manualTasks": {
+			"type": "array",
+			"description": "The manual checks to surface at the end of a run.",
+			"items": {
+				"type": "object",
+				"required": ["name"],
+				"additionalProperties": false,
+				"properties": {
+					"name": {
+						"type": "string",
+						"minLength": 1,
+						"description": "The thing to check manually, e.g. \"Microsoft Store\" or \"MSI X670E BIOS\"."
+					},
+					"category": {
+						"type": "string",
+						"minLength": 1,
+						"description": "Heading the item is grouped under in the end-of-run output, e.g. \"Updates\". Defaults to \"Other\" when omitted."
+					},
+					"url": {
+						"type": "string",
+						"format": "uri",
+						"description": "Optional link to where the update can be found or checked. Omit for items with no obvious URL."
+					}
+				}
+			}
+		}
+	}
+}

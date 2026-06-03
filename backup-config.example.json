@@ -1,0 +1,13 @@
+{
+	"$schema": "./backup-config.schema.json",
+	"repository": "s3:https://object-storage.kernelpanics.nl/backups",
+	"insecureTls": false,
+	"paths": ["C:\\Users\\patrick\\Documents", "C:\\Users\\patrick\\Saved Games"],
+	"exclude": ["**/node_modules", "**/*.tmp"],
+	"retention": { "keepDaily": 7, "keepWeekly": 4, "keepMonthly": 6 },
+	"secrets": {
+		"resticPassword": "op://Private/restic-backup/password",
+		"awsAccessKeyId": "op://Private/s3-backup/access key id",
+		"awsSecretAccessKey": "op://Private/s3-backup/secret access key"
+	}
+}
