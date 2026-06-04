@@ -19,11 +19,10 @@ function New-JsonStateStore
     }
     try
     {
-      # -DateKind String: keep the ISO 8601 timestamp as text. Without it,
-      # ConvertFrom-Json coerces it to [DateTime] and the later Parse re-reads a
-      # MM/dd string under a dd/MM locale, swapping month and day.
-      $record = Get-Content -LiteralPath $Path -Raw -ErrorAction Stop |
-        ConvertFrom-Json -DateKind String -ErrorAction Stop
+      # Plain ConvertFrom-Json (NOT -DateKind: that needs PS 7.5, we target 7.4).
+      # The timestamp comes back as a [datetime]; callers cast it straight to
+      # [datetimeoffset] (no culture-sensitive string reparse). See Format-LastRunLine.
+      $record = Get-Content -LiteralPath $Path -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
       [pscustomobject]@{ Record = $record; Corrupt = $false }
     } catch
     {

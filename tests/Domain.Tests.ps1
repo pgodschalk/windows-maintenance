@@ -320,6 +320,25 @@ Describe 'Formatting (human-facing strings, pure)' {
     $line | Should -Match '7 updates applied'
     $line | Should -Match 'reboot'
   }
+  It 'Format-LastRunLine keeps the date under a dd/MM locale (regression: month/day swap)' {
+    $culture = [System.Threading.Thread]::CurrentThread.CurrentCulture
+    try
+    {
+      [System.Threading.Thread]::CurrentThread.CurrentCulture = [System.Globalization.CultureInfo]::new('nl-NL')
+      # ConvertFrom-Json yields a [datetime] for the timestamp; rendering it must
+      # not stringify + reparse (that reads MM/dd as dd/MM and swaps month/day).
+      $rec = [pscustomobject]@{
+        timestamp = [datetime]::new(2026, 6, 3, 8, 0, 0)
+        outcome = 'Succeeded'; reboot_required = $false; updates_applied_total = 0
+      }
+      $line = Format-LastRunLine -Record $rec -Now ([datetimeoffset]'2026-06-03T22:00:00+00:00')
+      $line | Should -Match '2026-06-03'
+      $line | Should -Not -Match '2026-03-06'
+    } finally
+    {
+      [System.Threading.Thread]::CurrentThread.CurrentCulture = $culture
+    }
+  }
   It 'Format-ManualAdvisories groups by category, with optional links; empty when none' {
     Format-ManualAdvisories -Advisories @() | Should -BeNullOrEmpty
     $bios  = New-ManualAdvisory -Id 'manual:msi-x670e-bios' -Name 'MSI X670E BIOS' `

@@ -68,7 +68,10 @@ function Invoke-UpdateRun
     {
       try
       {
-        $ctx.LastRunAt = [datetimeoffset]::Parse([string]$record.timestamp)
+        # Direct cast (not Parse([string]...)): ConvertFrom-Json returns the
+        # timestamp as a [datetime]; stringify+reparse swaps day/month on a
+        # dd/MM locale. See Format-LastRunLine.
+        $ctx.LastRunAt = [datetimeoffset]$record.timestamp
       } catch
       {
         Write-Verbose "could not parse last-run timestamp '$($record.timestamp)': $_"

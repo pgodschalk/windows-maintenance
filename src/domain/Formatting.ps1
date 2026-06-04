@@ -100,7 +100,10 @@ function Format-LastRunLine
     [Parameter(Mandatory)][object] $Record,
     [Parameter(Mandatory)][datetimeoffset] $Now
   )
-  $when    = [datetimeoffset]::Parse([string]$Record.timestamp)
+  # Cast, don't Parse([string]...): the loaded timestamp is a [datetime]
+  # (ConvertFrom-Json coerces it), and stringify+reparse swaps day/month on a
+  # dd/MM locale. A direct cast preserves it.
+  $when    = [datetimeoffset]$Record.timestamp
   $abs     = $when.ToString('yyyy-MM-dd HH:mm')
   $rel     = Get-RelativeTimeText -From $when -To $Now
   $phrase  = Get-OutcomePhrase -Outcome ([string]$Record.outcome)
