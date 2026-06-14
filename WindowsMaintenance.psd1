@@ -1,6 +1,6 @@
 @{
   RootModule        = 'WindowsMaintenance.psm1'
-  ModuleVersion     = '1.0.1'
+  ModuleVersion     = '1.0.2'
   GUID              = '5c3a2ea7-0127-4bc3-89ed-f3f9e38b7954'
   Author            = 'Patrick Godschalk'
   Copyright         = '(c) Patrick Godschalk. EUPL-1.2 license.'
@@ -33,6 +33,8 @@
       LicenseUri   = 'https://github.com/pgodschalk/windows-maintenance/blob/main/LICENSE.txt'
       ProjectUri   = 'https://github.com/pgodschalk/windows-maintenance'
       ReleaseNotes = @'
+1.0.2: The last-run date fix now works on PowerShell 7.4 (1.0.1 used a 7.5-only
+ConvertFrom-Json option).
 1.0.1: Fixed the "last run" date on day/month-first locales (month and day were
 swapped); winget upgrade failures now report the exit code and message instead
 of failing silently; long-running checks (SFC/DISM, Defender full scan) announce

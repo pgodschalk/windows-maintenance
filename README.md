@@ -73,7 +73,7 @@ provenance attestation you can verify with the
 [GitHub CLI](https://cli.github.com):
 
 ```powershell
-gh attestation verify WindowsMaintenance-1.0.1.zip `
+gh attestation verify WindowsMaintenance-1.0.2.zip `
   --repo pgodschalk/windows-maintenance
 ```
 

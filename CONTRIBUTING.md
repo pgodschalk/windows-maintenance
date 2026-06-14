@@ -75,7 +75,7 @@ Each release (`release.yml`, on a `v*` tag) carries two independent signatures.
 Sigstore-backed build-provenance attestation. Verify a download with:
 
 ```bash
-gh attestation verify WindowsMaintenance-1.0.1.zip \
+gh attestation verify WindowsMaintenance-1.0.2.zip \
   --repo pgodschalk/windows-maintenance
 ```
 
@@ -107,9 +107,9 @@ Actions). To trust the signed scripts on a machine, import the released `.cer`
 into its stores from an elevated session:
 
 ```powershell
-Import-Certificate -FilePath WindowsMaintenance-1.0.1.cer `
+Import-Certificate -FilePath WindowsMaintenance-1.0.2.cer `
   -CertStoreLocation Cert:\LocalMachine\Root
-Import-Certificate -FilePath WindowsMaintenance-1.0.1.cer `
+Import-Certificate -FilePath WindowsMaintenance-1.0.2.cer `
   -CertStoreLocation Cert:\LocalMachine\TrustedPublisher
 ```
 

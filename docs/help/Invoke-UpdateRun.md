@@ -39,7 +39,7 @@ yourself only when composing the module by hand or testing with fake ports.
 ### Example 1
 
 ```powershell
-$c = New-WindowsMaintenanceComposition -ScriptVersion '1.0.1'
+$c = New-WindowsMaintenanceComposition -ScriptVersion '1.0.2'
 $report = Invoke-UpdateRun -Providers $c.Providers -Clock $c.Clock -StateStore $c.StateStore `
   -EventSink $c.EventSink -Presenter $c.Presenter -Environment $c.Environment -HostName $c.HostName
 $report.OverallOutcome
