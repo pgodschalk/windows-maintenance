@@ -32,7 +32,7 @@ passed straight to Invoke-UpdateRun.
 
 ### Example 1
 ```powershell
-$c = New-WindowsMaintenanceComposition -ScriptVersion '1.0.2' -WingetExcludeId 'Foo.Bar'
+$c = New-WindowsMaintenanceComposition -ScriptVersion '1.1.0' -WingetExcludeId 'Foo.Bar'
 $c.Providers.Count
 ```
 

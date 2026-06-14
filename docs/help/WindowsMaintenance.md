@@ -2,7 +2,7 @@
 Module Name: WindowsMaintenance
 Module Guid: 5c3a2ea7-0127-4bc3-89ed-f3f9e38b7954
 Download Help Link: https://pgodschalk.github.io/windows-maintenance/
-Help Version: 1.0.2
+Help Version: 1.1.0
 Locale: en-US
 ---
 
