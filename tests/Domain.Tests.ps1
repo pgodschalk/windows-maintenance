@@ -369,17 +369,17 @@ Describe 'Formatting (human-facing strings, pure)' {
 
 Describe 'Alert-only maintenance presentation' {
   BeforeAll {
-    $alertTarget = New-UpdateTarget -Id 'free-space' -DisplayName 'Free disk space' -Kind 'Automated' `
+    $alertTarget = New-UpdateTarget -Id 'crash-dumps' -DisplayName 'Crash dumps (BSOD)' -Kind 'Automated' `
       -Capabilities @{ AlertOnly = $true }
     $env = New-EnvironmentInfo -OsBuild b -OsVersion v -PsVersion p -ScriptVersion s `
       -IsElevated $true -IsInteractive $true -Locale l -Region r
   }
   It 'Format-Alerts lists an alert-only check that failed, with its message' {
-    $r = New-UpdateResult -Target $alertTarget -Outcome 'Failed' -ErrorMessage 'C: 8% free'
+    $r = New-UpdateResult -Target $alertTarget -Outcome 'Failed' -ErrorMessage '2 new crash dump(s)'
     $block = Format-Alerts -Results @($r)
     $block | Should -Match 'need attention'
-    $block | Should -Match 'Free disk space'
-    $block | Should -Match 'C: 8% free'
+    $block | Should -Match 'Crash dumps'
+    $block | Should -Match '2 new crash dump'
   }
   It 'Format-Alerts stays silent ($null) when alert-only checks succeed' {
     Format-Alerts -Results @(New-UpdateResult -Target $alertTarget -Outcome 'Succeeded') | Should -BeNullOrEmpty
@@ -397,6 +397,6 @@ Describe 'Alert-only maintenance presentation' {
     $summary = Format-Summary -Report $report
     $summary | Should -Match 'Winget'
     $summary | Should -Match 'Succeeded'
-    $summary | Should -Not -Match 'Free disk space'
+    $summary | Should -Not -Match 'Crash dumps'
   }
 }

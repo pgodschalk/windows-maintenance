@@ -25,8 +25,8 @@
     'PSReviewUnusedParameter'
 
     # Internal helpers that return collections use plural nouns intentionally
-    # (Get-LowFreeSpaceDrives, Get-*Problems, Format-ManualAdvisories). They
-    # read as "return the set of X"; renaming to singular would mislead.
+    # (Get-*Problems, Get-NewEntries, Format-ManualAdvisories). They read as
+    # "return the set of X"; renaming to singular would mislead.
     'PSUseSingularNouns'
 
     # Information-level. Scriptblock invocation (& $port.Member $arg) has no

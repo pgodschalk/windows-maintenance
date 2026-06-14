@@ -17,7 +17,6 @@ function Get-ProviderFactories
     [string[]] $WingetExcludeId = @(),
     [switch]   $WingetMachineScope,
     [switch]   $IncludeDrivers,
-    [int]      $FreeSpaceMinPercent = 20,
     [string]   $BackupConfigPath = (Get-DefaultBackupConfigPath)
   )
   # Factories that need configuration capture it; the others are parameterless.
@@ -34,7 +33,6 @@ function Get-ProviderFactories
       New-WingetAppProvider -All @common
     }
   }.GetNewClosure()
-  $freeSpaceFactory = { New-FreeSpaceProvider -MinFreePercent $FreeSpaceMinPercent }.GetNewClosure()
   $backupFactory    = { New-BackupProvider -ConfigPath $BackupConfigPath }.GetNewClosure()
 
   @(
@@ -44,11 +42,6 @@ function Get-ProviderFactories
     #
     # Alert-only maintenance checks - run silently, surfaced to stdout only on
     # a problem:
-    { New-StorageHealthProvider }     # SMART / health of physical disks
-    $freeSpaceFactory                 # free space below -FreeSpaceMinPercent (default 20%)
-    { New-DiskCleanupProvider }       # cleanmgr, safe allowlist (no shader cache / Downloads / Recycle Bin)
-    { New-SystemIntegrityProvider }   # DISM /RestoreHealth + sfc /scannow
-    { New-DefenderFullScanProvider }  # full Defender scan (slow)
     { New-EventHealthProvider }       # WHEA / Kernel-Power 41 / disk errors since last run
     { New-StartupDriftProvider }      # new autostart entries / scheduled tasks since last run
     { New-CrashDumpProvider }         # new BSOD minidumps + stop code since last run
@@ -101,7 +94,6 @@ function New-WindowsMaintenanceComposition
     [string[]] $WingetExcludeId = @(),
     [switch]   $WingetMachineScope,
     [switch]   $IncludeDrivers,
-    [int]      $FreeSpaceMinPercent = 20,
     [string]   $BackupConfigPath = (Get-DefaultBackupConfigPath),
     [string]   $ManualTasksPath = (Get-DefaultManualTasksPath),
     [string]   $StatePath = (Get-DefaultStatePath),
@@ -113,7 +105,7 @@ function New-WindowsMaintenanceComposition
   $providers = @(
     Get-ProviderFactories -WingetPackageId $WingetPackageId -WingetExcludeId $WingetExcludeId `
       -WingetMachineScope:$WingetMachineScope -IncludeDrivers:$IncludeDrivers `
-      -FreeSpaceMinPercent $FreeSpaceMinPercent -BackupConfigPath $BackupConfigPath |
+      -BackupConfigPath $BackupConfigPath |
       ForEach-Object { & $_ }
   )
   # Append one manual-advisory provider per configured manual task

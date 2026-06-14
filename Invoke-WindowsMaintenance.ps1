@@ -14,10 +14,8 @@
       * Updates - Windows Update (all software; drivers excluded by default),
                   winget app upgrades, and Microsoft Defender signature updates.
       * Health  - silent checks that print to stdout ONLY when something is
-                  wrong: storage (SMART) health, free space, Disk Cleanup,
-                  system integrity (SFC/DISM), a full Defender scan, critical
-                  event-log review, startup/scheduled-task drift, crash dumps,
-                  and clock sync.
+                  wrong: critical event-log review, startup/scheduled-task
+                  drift, crash dumps, and clock sync.
       * Backup  - an encrypted restic backup of configured paths to S3 (skipped
                   if not set up).
       * Manual  - reminders for what the tool cannot do itself (firmware/BIOS,
@@ -47,11 +45,6 @@
     are managed separately (and AtlasOS blocks Windows Update driver delivery).
     Everything else Windows Update offers (including optional/preview quality &
     feature updates) is installed regardless.
-
-.PARAMETER FreeSpaceMinPercent
-    Free-space threshold (percent) for the silent storage check; alerts to
-    stdout if any fixed drive is below it. Default 20 (keeps the Crucial T700's
-    ~11% dynamic SLC cache + GC headroom).
 
 .PARAMETER ManualTasksPath
     Override the manual-tasks JSON config (default:
@@ -100,7 +93,6 @@ param(
   [string[]] $WingetExcludeId,
   [switch]   $WingetMachineScope,
   [switch]   $IncludeDrivers,
-  [int]      $FreeSpaceMinPercent = 20,
   [string]   $BackupConfigPath,
   [string]   $ManualTasksPath,
   [string]   $StatePath,
@@ -144,7 +136,6 @@ if ($IncludeDrivers)
 {
   $compositionArgs.IncludeDrivers = $true
 }
-$compositionArgs.FreeSpaceMinPercent = $FreeSpaceMinPercent
 if ($BackupConfigPath)
 {
   $compositionArgs.BackupConfigPath = $BackupConfigPath

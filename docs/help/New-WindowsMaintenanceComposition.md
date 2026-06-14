@@ -14,7 +14,7 @@ Builds the wired set of dependencies that Invoke-UpdateRun needs.
 
 ```
 New-WindowsMaintenanceComposition [[-ScriptVersion] <String>] [[-WingetPackageId] <String[]>]
- [[-WingetExcludeId] <String[]>] [-WingetMachineScope] [-IncludeDrivers] [[-FreeSpaceMinPercent] <Int32>]
+ [[-WingetExcludeId] <String[]>] [-WingetMachineScope] [-IncludeDrivers]
  [[-BackupConfigPath] <String>] [[-ManualTasksPath] <String>] [[-StatePath] <String>]
  [[-EventLogName] <String>] [[-EventLogSource] <String>] [-Quiet] [-ProgressAction <ActionPreference>]
  [<CommonParameters>]
@@ -81,21 +81,6 @@ Aliases:
 
 Required: False
 Position: 8
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -FreeSpaceMinPercent
-Free-space threshold (percent) for the silent storage check; a fixed drive below it alerts. Defaults to 20.
-
-```yaml
-Type: Int32
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 3
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -53,7 +53,7 @@ Describe 'Provider closures resolve their dependencies under Import-Module' {
     $plan.Advisory.Name | Should -Be 'MSI X670E BIOS'
   }
   It 'a maintenance provider builds its plan through the closure' {
-    $plan = & (New-FreeSpaceProvider -MinFreePercent 20).GetPlan ([pscustomobject]@{})
+    $plan = & (New-CrashDumpProvider).GetPlan ([pscustomobject]@{})
     $plan.PSTypeNames | Should -Contain 'WindowsMaintenance.UpdatePlan'
   }
 }

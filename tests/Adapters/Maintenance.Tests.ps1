@@ -1,7 +1,7 @@
 #requires -Version 7.4
 # Cross-platform: the PURE decision/parse helpers behind the alert-only
 # maintenance checks, plus that each provider is a well-formed alert-only port.
-# The impure system calls (CIM/cleanmgr/sfc/Defender) are not exercised here.
+# The impure system calls (event log/registry/w32tm) are not exercised here.
 
 BeforeAll {
   $repo   = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
@@ -18,74 +18,6 @@ BeforeAll {
       Should -Not -Throw
     $Port.Target.Id                     | Should -Be $ExpectedId
     $Port.Target.Capabilities.AlertOnly | Should -BeTrue
-  }
-}
-
-Describe 'Get-StorageHealthProblems' {
-  It 'is empty when every disk is healthy' {
-    Get-StorageHealthProblems -Disks @(
-      [pscustomobject]@{ Name = 'D1'; HealthStatus = 'Healthy'; OperationalStatus = 'OK'; WearPercent = 10 }
-    ) | Should -BeNullOrEmpty
-  }
-  It 'flags unhealthy status and high wear' {
-    $disks = @(
-      [pscustomobject]@{ Name = 'Bad'; HealthStatus = 'Unhealthy'; OperationalStatus = 'OK'; WearPercent = 10 }
-      [pscustomobject]@{ Name = 'Worn'; HealthStatus = 'Healthy'; OperationalStatus = 'OK'; WearPercent = 95 }
-    )
-    $p = @(Get-StorageHealthProblems -Disks $disks)
-    ($p -join '|') | Should -Match 'Bad'
-    ($p -join '|') | Should -Match 'Worn'
-  }
-}
-
-Describe 'Get-LowFreeSpaceDrives' {
-  It 'flags only drives below the threshold, with the percentage' {
-    $low = @(Get-LowFreeSpaceDrives -Volumes @(
-        [pscustomobject]@{ Drive = 'C:'; SizeBytes = 1000; FreeBytes = 120 },   # 12%
-        [pscustomobject]@{ Drive = 'D:'; SizeBytes = 1000; FreeBytes = 500 }    # 50%
-      ) -MinFreePercent 20)
-    $low.Count          | Should -Be 1
-    $low[0].Drive       | Should -Be 'C:'
-    $low[0].FreePercent | Should -Be 12
-  }
-  It 'is empty when all drives are above the threshold' {
-    $vol = [pscustomobject]@{ Drive = 'C:'; SizeBytes = 1000; FreeBytes = 300 }
-    Get-LowFreeSpaceDrives -Volumes @($vol) -MinFreePercent 20 | Should -BeNullOrEmpty
-  }
-}
-
-Describe 'Test-CleanupHandlerEnabled' {
-  It 'NEVER enables DirectX Shader Cache' {
-    Test-CleanupHandlerEnabled -Name 'DirectX Shader Cache' | Should -BeFalse
-  }
-  It 'never enables user-data handlers (Downloads, Recycle Bin)' {
-    Test-CleanupHandlerEnabled -Name 'DownloadsFolder' | Should -BeFalse
-    Test-CleanupHandlerEnabled -Name 'Recycle Bin'     | Should -BeFalse
-  }
-  It 'enables safe system caches' {
-    Test-CleanupHandlerEnabled -Name 'Temporary Files' | Should -BeTrue
-    Test-CleanupHandlerEnabled -Name 'Update Cleanup'  | Should -BeTrue
-  }
-}
-
-Describe 'Get-IntegrityStatus' {
-  It 'classifies clean / repaired / unrepairable SFC output' {
-    $clean    = 'Windows Resource Protection did not find any integrity violations.'
-    $repaired = 'Windows Resource Protection found corrupt files and successfully repaired them.'
-    $unrep    = 'Windows Resource Protection found corrupt files but was unable to fix some of them.'
-    Get-IntegrityStatus -SfcOutput $clean    | Should -Be 'Clean'
-    Get-IntegrityStatus -SfcOutput $repaired | Should -Be 'Repaired'
-    Get-IntegrityStatus -SfcOutput $unrep    | Should -Be 'Unrepairable'
-  }
-  It 'tolerates the interleaved null bytes SFC emits when captured' {
-    Get-IntegrityStatus -SfcOutput "d`0i`0d not find any integrity violations" | Should -Be 'Clean'
-  }
-}
-
-Describe 'Test-DefenderClean' {
-  It 'is clean with no active threats' { Test-DefenderClean -ActiveThreats @() | Should -BeTrue }
-  It 'is not clean when threats are present' {
-    Test-DefenderClean -ActiveThreats @([pscustomobject]@{ ThreatName = 'X' }) | Should -BeFalse
   }
 }
 
@@ -145,11 +77,6 @@ Describe 'Get-TimeSyncProblems' {
 }
 
 Describe 'Maintenance providers are well-formed alert-only ports' {
-  It 'storage health' { Assert-AlertOnlyProvider (New-StorageHealthProvider) 'storage-health' }
-  It 'free space' { Assert-AlertOnlyProvider (New-FreeSpaceProvider -MinFreePercent 25) 'free-space' }
-  It 'disk cleanup' { Assert-AlertOnlyProvider (New-DiskCleanupProvider) 'disk-cleanup' }
-  It 'system integrity' { Assert-AlertOnlyProvider (New-SystemIntegrityProvider) 'system-integrity' }
-  It 'defender full scan' { Assert-AlertOnlyProvider (New-DefenderFullScanProvider) 'defender-full-scan' }
   It 'event-log review' { Assert-AlertOnlyProvider (New-EventHealthProvider) 'event-health' }
   It 'startup drift' { Assert-AlertOnlyProvider (New-StartupDriftProvider) 'startup-drift' }
   It 'crash dumps' { Assert-AlertOnlyProvider (New-CrashDumpProvider) 'crash-dumps' }
