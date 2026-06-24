@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Build help CABs and HelpInfo.xml
         shell: pwsh
         run: ./tools/build-help.ps1 -Install -OutputPath ./_site
