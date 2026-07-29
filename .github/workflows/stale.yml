@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Run stale
-        uses: actions/stale@v10
+        uses: actions/stale@v11
         with:
           repo-token: ${{ github.token }}
           days-before-stale: 30
